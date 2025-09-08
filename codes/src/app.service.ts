@@ -10,7 +10,8 @@ export class AppService {
   ) {
   }
   getHello(): string {
-    /*const feeds = this.rssUniqueFeedsRepository.all();*/
-    return 'Hello World! server is running';
+    const feeds = this.rssUniqueFeedsRepository.all();
+    console.log(feeds);
+    return 'Hello World! server is running' + feeds;
   }
 }
