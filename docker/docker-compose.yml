@@ -6,9 +6,6 @@ services:
       context: ../
       dockerfile: docker/Dockerfile
       args:
-        - HTTP_PROXY=${APP_HTTP_PROXY}
-        - HTTPS_PROXY=${APP_HTTPS_PROXY}
-        - NO_PROXY=${APP_NO_PROXY}
         - TZ=${TIMEZONE}
         - SHOULD_RUN_CHOWN_TO_APPUSER=false
       target: ${DOCKER_BUILD_MODE}
