@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database/database.service';
+import {RssUniqueFeedsRepository} from "./commons/repositories/rss-unique-feeds.repository";
 
 @Injectable()
 export class AppService {
 
-  constructor() {
-
+  constructor(
+      private readonly rssUniqueFeedsRepository: RssUniqueFeedsRepository,
+  ) {
   }
   getHello(): string {
-    console.log(process.env.DATABASE_URL)
-    return 'Hello World! server is running'
+    /*const feeds = this.rssUniqueFeedsRepository.all();*/
+    return 'Hello World! server is running';
   }
 }

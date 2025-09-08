@@ -20,7 +20,7 @@ model RssSources {
   updated_at    DateTime  @default(now()) @updatedAt
 
   // Optional: relation with RssUniqueFeeds if needed
-  feeds         RssUniqueFeeds[]
+  // feeds         RssUniqueFeeds[]
 }
 
 model RssUniqueFeeds {

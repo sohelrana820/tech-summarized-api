@@ -1,18 +1,17 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { DbConfigType } from '../configs/config.types';
-import { LoggerService } from '../libs/logger/logger.service';
+import { dbConfig } from '../configs/db.config';
+import type { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly prisma: PrismaClient;
 
   constructor(
-    private readonly dbConfigService: ConfigService<DbConfigType>,
-    private readonly logger: LoggerService,
+      @Inject(dbConfig.KEY)
+      private readonly dbConf: ConfigType<typeof dbConfig>, // ✅ type-only
   ) {
-    const databaseUrl = this.dbConfigService.getOrThrow('databaseUrl');
+    const databaseUrl = dbConf.url;
     if (!databaseUrl) {
       throw new Error('DATABASE_URL is not defined in environment variables');
     }
@@ -31,51 +30,38 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     await this.prisma.$disconnect();
   }
 
-  /**
-   * Executes a database operation using the Prisma client.
-   * @param callback A function that receives the PrismaClient and returns a Promise.
-   * @param logQueries Optional flag: if true, query logging is enabled for the duration of the operation.
-   */
   async execute<T>(
-    callback: (client: PrismaClient) => Promise<T>,
-    logQueries: boolean = false,
+      callback: (client: PrismaClient) => Promise<T>,
+      logQueries = false,
   ): Promise<T> {
     let listener: (e: Prisma.QueryEvent) => void;
 
     if (logQueries) {
       listener = (e) => {
-        this.logger.debug('database', 'Query executed', e);
+        // this.logger.debug('database', 'Query executed', e);
       };
-
       (this.prisma as any).$on('query', listener);
     }
 
     try {
       return await callback(this.prisma);
     } catch (error) {
-      this.logger.error('database', 'Database operation failed', error);
+      // this.logger.error('database', 'Database operation failed', error);
       throw error;
     }
   }
 
-  /**
-   * Executes a series of database operations within a transaction.
-   * @param callback A function that receives the PrismaClient and returns a Promise.
-   */
   async executeTransaction<T>(
-    callback: (client: PrismaClient) => Promise<T>,
+      callback: (client: PrismaClient) => Promise<T>,
   ): Promise<T> {
     try {
       return await this.prisma.$transaction(callback);
     } catch (error) {
-      this.logger.error('database', 'Databse transaction failed', error);
+      // this.logger.error('database', 'Database transaction failed', error);
       throw error;
     }
   }
 
-  /**
-   * Returns the underlying Prisma client directly.
-   */
   getClient(): PrismaClient {
     return this.prisma;
   }
