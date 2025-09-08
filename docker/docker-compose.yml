@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tech-summarized-apis:
+    container_name: tech-summarized-apis
+    image: tech-summarized-apis:${APP_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "${APP_PORT:-1051}:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default_network
+
+networks:
+  default_network:
+    external: true
+    name: ${DOCKER_NETWORK:-server-common-network}

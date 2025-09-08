@@ -1,0 +1,52 @@
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Docker files (don't copy into container)
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/*
+*.log
+
+# Runtime data
+tmp/*
+storage/logs/*
+storage/cache/*
+storage/sessions/*
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Test files
+tests/
+phpunit.xml
+
+# Documentation
+README.md
+*.md
