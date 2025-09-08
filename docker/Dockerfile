@@ -1,70 +1,96 @@
-# Dockerfile.dev (Development)
-FROM node:18-alpine
+FROM node:21.6.0-bullseye-slim AS base
 
-WORKDIR /app
+LABEL maintainer="Ahmedul Haque Abid <a_h_abid@hotmail.com>"
 
-# Copy package files
-COPY package*.json ./
+ARG HTTP_PROXY="http://10.10.20.107:3828"
+ARG HTTPS_PROXY="http://10.10.20.107:3828"
+ARG NO_PROXY="localhost,127.0.0.1"
+ARG TIMEZONE="Asia/Dhaka"
 
-# Install dependencies
-RUN npm ci
+ENV http_proxy="${HTTP_PROXY}" \
+    https_proxy="${HTTPS_PROXY}" \
+    no_proxy="${NO_PROXY}" \
+    TZ="${TIMEZONE}"
 
-# Copy source code
-COPY . .
+USER root
 
-# Expose port
-EXPOSE 3000
+USER root
 
-# Start in development mode
-CMD ["npm", "run", "start:dev"]
+# Always install curl and other basic packages
+RUN apt update \
+    && apt install -y curl libssl-dev procps telnet tzdata ca-certificates \
+    && apt clean \
+    && apt autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
-# ----------------------------------------
+ARG UID="1000"
+ARG GID="1000"
 
-# Dockerfile (Production)
-FROM node:18-alpine AS builder
+RUN userdel -r node \
+    && groupadd --gid ${GID} appuser \
+    && useradd --uid ${UID} --create-home --system --comment "AppUser" --shell /bin/bash --gid appuser appuser \
+    && mkdir -p /home/appuser/appsrc \
+    && chown -R appuser:appuser /home/appuser/appsrc
 
-WORKDIR /app
+WORKDIR /home/appuser/appsrc
 
-# Copy package files
-COPY package*.json ./
+COPY --chown=appuser:appuser ./codes/package.json ./codes/package-lock*.json ./
 
-# Install all dependencies (including dev dependencies)
-RUN npm ci
+USER appuser
 
-# Copy source code
-COPY codes .
+######################################################
 
-# Build the application
-RUN npm run build
+FROM base AS dev
 
-# Production stage
-FROM node:18-alpine AS production
+USER root
 
-WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y curl libssl-dev procps telnet ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package*.json ./
+USER appuser
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN echo "-- Install Local NPM Packages --" \
+    && (npm ci --ignore-scripts --no-audit || npm install --ignore-scripts --no-audit)
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --chown=appuser:appuser ./codes/ ./
 
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
+STOPSIGNAL SIGTERM
 
-# Change ownership of the app directory
-RUN chown -R nestjs:nodejs /app
-USER nestjs
+CMD [ "node", "node_modules/.bin/nest", "start", "--watch" ]
 
-# Expose port
-EXPOSE 3000
+######################################################
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js
+FROM dev AS builder
 
-# Start the application
-CMD ["node", "dist/main"]
+USER root
+
+ARG SHOULD_RUN_CHOWN_TO_APPUSER="true"
+
+RUN if [ "${SHOULD_RUN_CHOWN_TO_APPUSER}" = "true" ]; then \
+    chown -R appuser:appuser . \
+    ;fi
+
+USER appuser
+
+RUN npx prisma generate --schema=./src/database/prisma/schema.prisma \
+    && npm run build \
+    && npm ci --omit=dev \
+    && npx prisma generate --schema=./src/database/prisma/schema.prisma
+
+######################################################
+
+FROM base AS prod
+
+COPY --chown=appuser:appuser --from=builder /home/appuser/appsrc/node_modules ./node_modules
+COPY --chown=appuser:appuser --from=builder /home/appuser/appsrc/dist ./dist
+COPY --chown=appuser:appuser --from=builder /home/appuser/appsrc/package.json /home/appuser/appsrc/package-lock.json ./
+
+# Unset ENVs
+ENV http_proxy="" \
+    https_proxy="" \
+    no_proxy=""
+
+STOPSIGNAL SIGTERM
+
+CMD [ "node", "dist/main" ]

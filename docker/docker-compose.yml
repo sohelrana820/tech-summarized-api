@@ -1,17 +1,19 @@
-version: '3.8'
-
 services:
   tech-summarized-apis:
     container_name: tech-summarized-apis
     image: tech-summarized-apis:${APP_IMAGE_TAG:-latest}
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ../
+      dockerfile: docker/Dockerfile
+      args:
+        - HTTP_PROXY=${APP_HTTP_PROXY}
+        - HTTPS_PROXY=${APP_HTTPS_PROXY}
+        - NO_PROXY=${APP_NO_PROXY}
+        - TZ=${TIMEZONE}
+        - SHOULD_RUN_CHOWN_TO_APPUSER=false
+      target: ${DOCKER_BUILD_MODE}
     ports:
       - "${APP_PORT:-1051}:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3000
