@@ -10,7 +10,7 @@ services:
         - SHOULD_RUN_CHOWN_TO_APPUSER=false
       target: ${DOCKER_BUILD_MODE}
     ports:
-      - "${APP_PORT:-1051}:3000"
+      - "${APP_PORT:-1052}:3000"
     environment:
       - NODE_ENV=development
       - PORT=3000
