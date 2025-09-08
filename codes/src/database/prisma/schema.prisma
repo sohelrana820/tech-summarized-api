@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model RssSources {
+  id            Int       @id @default(autoincrement())
+  url           String    @db.VarChar(1000)
+  url_hash      String    @db.Char(64)
+  source_name   String    @db.VarChar(100)
+  is_active     Boolean?  @default(true)
+  priority      Int?      @default(5)
+  last_fetched  DateTime?
+  fetch_interval Int?     @default(3600)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now()) @updatedAt
+
+  // Optional: relation with RssUniqueFeeds if needed
+  feeds         RssUniqueFeeds[]
+}
+
+model RssUniqueFeeds {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(500)
+  link        String    @db.VarChar(1000)
+  pub_date    DateTime
+  source      String    @db.VarChar(100)
+  description String?   @db.Text
+  category    String?   @db.Text
+  created_at  DateTime  @default(now())
+
+  // Optional: you can relate this to RssSources if you store source_id
+  // source_id Int?
+  // source    RssSources? @relation(fields: [source_id], references: [id])
+}
