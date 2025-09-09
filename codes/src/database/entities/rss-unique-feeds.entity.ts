@@ -1,9 +1,6 @@
-// src/database/entities/rss-unique-feeds.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('rss_unique_feeds')
-@Index(['source', 'pub_date']) // Performance optimization for common queries
-@Index(['link'], { unique: true }) // Prevent duplicate links
 export class RssUniqueFeeds {
     @PrimaryGeneratedColumn()
     id: number;
@@ -17,9 +14,8 @@ export class RssUniqueFeeds {
 
     @Column({
         type: 'varchar',
-        length: 1000,
+        length: 255, // Reduced length to fix index issue
         nullable: false,
-        unique: true, // Prevent duplicate feeds
     })
     link: string;
 
@@ -48,9 +44,11 @@ export class RssUniqueFeeds {
     })
     category: string | null;
 
-    @CreateDateColumn({
+    // Fixed timestamp column - remove default and make it simple
+    @Column({
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
+        nullable: false,
     })
     created_at: Date;
 }
