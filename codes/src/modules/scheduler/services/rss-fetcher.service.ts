@@ -10,7 +10,7 @@ export class RssFetcherService {
     private readonly parser = new Parser();
 
     constructor(
-        private readonly rssRepository: RssUniqueFeedsRepository,
+        private readonly rssUniqueFeedsRepository: RssUniqueFeedsRepository,
     ) {}
 
     @Cron(CronExpression.EVERY_HOUR)
@@ -41,7 +41,7 @@ export class RssFetcherService {
 
             for (const item of feed.items) {
                 if (item.link) {
-                    const exists = await this.rssRepository.existsByLink(item.link);
+                    const exists = await this.rssUniqueFeedsRepository.existsByLink(item.link);
                     if (!exists) {
                         feedsToInsert.push({
                             title: item.title?.substring(0, 500) || '',
@@ -56,7 +56,7 @@ export class RssFetcherService {
             }
 
             if (feedsToInsert.length > 0) {
-                await this.rssRepository.createMany(feedsToInsert);
+                await this.rssUniqueFeedsRepository.createMany(feedsToInsert);
                 this.logger.log(`Inserted ${feedsToInsert.length} new feeds from ${sourceName}`);
             }
 
@@ -69,7 +69,7 @@ export class RssFetcherService {
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async cleanupOldFeeds() {
         this.logger.log('Starting cleanup of old feeds');
-        const deletedCount = await this.rssRepository.deleteOldFeeds(30);
+        const deletedCount = await this.rssUniqueFeedsRepository.deleteOldFeeds(30);
         this.logger.log(`Cleaned up ${deletedCount} old feeds`);
     }
 }

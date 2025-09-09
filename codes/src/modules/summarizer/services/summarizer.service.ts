@@ -12,11 +12,11 @@ interface FeedSummary {
 @Injectable()
 export class SummarizerService {
     constructor(
-        private readonly rssRepository: RssUniqueFeedsRepository,
+        private readonly rssUniqueFeedsRepository: RssUniqueFeedsRepository,
     ) {}
 
     async summarizeFeed(feedId: number): Promise<FeedSummary> {
-        const feed = await this.rssRepository.findById(feedId);
+        const feed = await this.rssUniqueFeedsRepository.findById(feedId);
         if (!feed) {
             throw new Error('Feed not found');
         }
@@ -33,7 +33,7 @@ export class SummarizerService {
     }
 
     async summarizeRecentFeeds(limit: number = 10): Promise<FeedSummary[]> {
-        const recentFeeds = await this.rssRepository.findRecent(limit);
+        const recentFeeds = await this.rssUniqueFeedsRepository.findRecent(limit);
         const summaries: FeedSummary[] = [];
 
         for (const feed of recentFeeds) {
