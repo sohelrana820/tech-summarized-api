@@ -1,9 +1,8 @@
-// src/database/repositories/base.repository.ts
-import { Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
-import { IBaseRepository } from '../interfaces/repository.interface';
-import { IPaginationResult, IPaginationOptions } from '../interfaces/pagination.interface';
+import { Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder, ObjectLiteral, DeepPartial } from 'typeorm';
+import type { IBaseRepository } from '../interfaces/repository.interface';
+import type { IPaginationResult, IPaginationOptions } from '../interfaces/pagination.interface';
 
-export abstract class BaseRepository<T> implements IBaseRepository<T> {
+export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRepository<T> {
     constructor(protected readonly repository: Repository<T>) {}
 
     /**
@@ -23,7 +22,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     /**
      * Create a new record
      */
-    async create(data: Partial<T>): Promise<T> {
+    async create(data: DeepPartial<T>): Promise<T> {
         const entity = this.repository.create(data);
         return this.repository.save(entity);
     }
@@ -31,7 +30,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     /**
      * Create multiple records
      */
-    async createMany(data: Partial<T>[]): Promise<T[]> {
+    async createMany(data: DeepPartial<T>[]): Promise<T[]> {
         const entities = this.repository.create(data);
         return this.repository.save(entities);
     }
@@ -39,8 +38,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     /**
      * Update a record by ID
      */
-    async update(id: number, data: Partial<T>): Promise<T | null> {
-        await this.repository.update(id, data);
+    async update(id: number, data: DeepPartial<T>): Promise<T | null> {
+        await this.repository.update(id, data as any);
         return this.findById(id);
     }
 
@@ -75,7 +74,6 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     ): Promise<IPaginationResult<T>> {
         const { page = 1, limit = 10, sortBy, sortOrder = 'DESC' } = options;
 
-        // Build order object
         const order: FindOptionsOrder<T> = sortBy
             ? { [sortBy]: sortOrder } as FindOptionsOrder<T>
             : {};

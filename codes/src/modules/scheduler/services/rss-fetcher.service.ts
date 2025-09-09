@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
-import * as Parser from 'rss-parser';
+import Parser from 'rss-parser'; // Fixed import
 
 @Injectable()
 export class RssFetcherService {
@@ -25,7 +25,7 @@ export class RssFetcherService {
         for (const source of sources) {
             try {
                 await this.fetchFromSource(source.name, source.url);
-            } catch (error) {
+            } catch (error: any) {
                 this.logger.error(`Failed to fetch from ${source.name}:`, error.message);
             }
         }
@@ -36,20 +36,22 @@ export class RssFetcherService {
     private async fetchFromSource(sourceName: string, url: string) {
         try {
             const feed = await this.parser.parseURL(url);
-            const feedsToInsert: Partial<RssUniqueFeeds>[] = [];
+            const feedsToInsert: DeepPartial<RssUniqueFeeds>[] = [];
 
             for (const item of feed.items) {
                 // Check if feed already exists
-                const exists = await this.rssRepository.existsByLink(item.link);
-                if (!exists) {
-                    feedsToInsert.push({
-                        title: item.title?.substring(0, 500) || '',
-                        link: item.link || '',
-                        pub_date: new Date(item.pubDate || new Date()),
-                        source: sourceName,
-                        description: item.contentSnippet?.substring(0, 1000) || null,
-                        category: item.categories?.join(', ') || null,
-                    });
+                if (item.link) {
+                    const exists = await this.rssRepository.existsByLink(item.link);
+                    if (!exists) {
+                        feedsToInsert.push({
+                            title: item.title?.substring(0, 500) || '',
+                            link: item.link || '',
+                            pub_date: new Date(item.pubDate || new Date()),
+                            source: sourceName,
+                            description: item.contentSnippet?.substring(0, 1000) || null,
+                            category: item.categories?.join(', ') || null,
+                        });
+                    }
                 }
             }
 
@@ -58,7 +60,7 @@ export class RssFetcherService {
                 this.logger.log(`Inserted ${feedsToInsert.length} new feeds from ${sourceName}`);
             }
 
-        } catch (error) {
+        } catch (error: any) {
             this.logger.error(`Error fetching from ${sourceName}:`, error.message);
             throw error;
         }

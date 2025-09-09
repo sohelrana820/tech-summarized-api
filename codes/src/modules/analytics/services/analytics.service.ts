@@ -32,7 +32,7 @@ export class AnalyticsService {
             categoryDistribution: countByCategory,
             todayActivity: {
                 count: todaysFeeds.length,
-                feeds: todaysFeeds.slice(0, 5), // Latest 5 feeds
+                feeds: todaysFeeds.slice(0, 5),
             },
             trends: await this.getWeeklyTrends(),
         };
