@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import databaseConfig from './../configs/database.config';
 import { DatabaseService } from './database.service';
-import { RssUniqueFeeds } from './entities/rss-unique-feeds.entity';
-import { RssUniqueFeedsRepository } from './repositories/rss-unique-feeds.repository';
+import { RssUniqueFeeds } from './entities';
+import { RssUniqueFeedsRepository } from './repositories';
 
 @Global()
 @Module({

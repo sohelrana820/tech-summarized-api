@@ -1,23 +1,30 @@
+// FIXED: src/app.module.ts
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from './database';
 import { RssModule } from './modules/rss/rss.module';
 import databaseConfig from './configs/database.config';
 
 @Module({
     imports: [
-        // Global configuration
         ConfigModule.forRoot({
             isGlobal: true,
             load: [databaseConfig],
-            envFilePath: ['.env.local', '.env'],
-            cache: true, // Cache configuration for performance
         }),
 
-        // Database module handles all DB connections
-        DatabaseModule,
+        TypeOrmModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => {
+                const dbConfig = configService.get('database');
+                if (!dbConfig) {
+                    throw new Error('Database configuration not found');
+                }
+                return dbConfig;
+            },
+        }),
 
-        // Feature modules
+        DatabaseModule,
         RssModule,
     ],
 })

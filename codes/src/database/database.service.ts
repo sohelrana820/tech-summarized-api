@@ -1,27 +1,31 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Connection, EntityManager } from 'typeorm';
-import { InjectConnection } from '@nestjs/typeorm';
+import { DataSource, EntityManager } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(DatabaseService.name);
 
     constructor(
-        @InjectConnection()
-        private readonly connection: Connection,
+        @InjectDataSource()
+        private readonly dataSource: DataSource,
     ) {}
 
     async onModuleInit() {
-        if (this.connection.isConnected) {
+        if (this.dataSource.isInitialized) {
             this.logger.log('Database connection established successfully');
-            this.logger.log(`Database: ${this.connection.options.database}`);
-            this.logger.log(`Host: ${this.connection.options.host}`);
+            this.logger.log(`Database: ${this.dataSource.options.database}`);
+
+            // Type-safe access to MySQL options
+            const mysqlOptions = this.dataSource.options as MysqlConnectionOptions;
+            this.logger.log(`Host: ${mysqlOptions.host}`);
         }
     }
 
     async onModuleDestroy() {
-        if (this.connection.isConnected) {
-            await this.connection.close();
+        if (this.dataSource.isInitialized) {
+            await this.dataSource.destroy();
             this.logger.log('Database connection closed');
         }
     }
@@ -29,7 +33,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     // Health check method
     async isHealthy(): Promise<boolean> {
         try {
-            await this.connection.query('SELECT 1');
+            await this.dataSource.query('SELECT 1');
             return true;
         } catch (error) {
             this.logger.error('Database health check failed:', error);
@@ -41,7 +45,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     async executeInTransaction<T>(
         operation: (manager: EntityManager) => Promise<T>
     ): Promise<T> {
-        const queryRunner = this.connection.createQueryRunner();
+        const queryRunner = this.dataSource.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
 
@@ -58,13 +62,14 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         }
     }
 
-    // Get connection info
+    // Get connection info - fixed type access
     getConnectionInfo() {
+        const mysqlOptions = this.dataSource.options as MysqlConnectionOptions;
         return {
-            isConnected: this.connection.isConnected,
-            database: this.connection.options.database,
-            host: this.connection.options.host,
-            driver: this.connection.options.type,
+            isConnected: this.dataSource.isInitialized,
+            database: this.dataSource.options.database,
+            host: mysqlOptions.host,
+            driver: this.dataSource.options.type,
         };
     }
 }
