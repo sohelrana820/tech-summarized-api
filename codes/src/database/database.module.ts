@@ -1,7 +1,7 @@
-import { Module, Global } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { RssUniqueFeeds } from './entities';
-import { RssUniqueFeedsRepository } from './repositories';
+import {Module, Global} from '@nestjs/common';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {RssUniqueFeeds} from './entities';
+import {RssUniqueFeedsRepository} from './repositories';
 
 @Global()
 @Module({
@@ -18,4 +18,5 @@ import { RssUniqueFeedsRepository } from './repositories';
         TypeOrmModule,
     ],
 })
-export class DatabaseModule {}
+export class DatabaseModule {
+}

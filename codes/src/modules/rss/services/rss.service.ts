@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
+import {Injectable, NotFoundException} from '@nestjs/common';
+import {RssUniqueFeedsRepository, RssUniqueFeeds} from '../../../database';
 
 @Injectable()
 export class RssService {
     constructor(
         private readonly rssUniqueFeedsRepository: RssUniqueFeedsRepository,
-    ) {}
+    ) {
+    }
 
     async getAllFeeds(): Promise<RssUniqueFeeds[]> {
         return this.rssUniqueFeedsRepository.findAll({
-            order: { pub_date: 'DESC' },
+            order: {pub_date: 'DESC'},
         });
     }
 

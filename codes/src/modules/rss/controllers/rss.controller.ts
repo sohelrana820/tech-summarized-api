@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
-import { RssService } from '../services/rss.service';
+import {Controller, Get, Post, Body, Param, ParseIntPipe} from '@nestjs/common';
+import {RssService} from '../services/rss.service';
 
 @Controller('rss')
 export class RssController {
-    constructor(private readonly rssService: RssService) {}
+    constructor(private readonly rssService: RssService) {
+    }
 
     @Get()
     async getAllFeeds() {

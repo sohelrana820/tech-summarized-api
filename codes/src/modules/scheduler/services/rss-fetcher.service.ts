@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
+import {Injectable, Logger} from '@nestjs/common';
+import {Cron, CronExpression} from '@nestjs/schedule';
+import {RssUniqueFeedsRepository, RssUniqueFeeds} from '../../../database';
 
 const Parser = require('rss-parser');
 
@@ -11,16 +11,17 @@ export class RssFetcherService {
 
     constructor(
         private readonly rssUniqueFeedsRepository: RssUniqueFeedsRepository,
-    ) {}
+    ) {
+    }
 
     @Cron(CronExpression.EVERY_HOUR)
     async fetchAllRssFeeds() {
         this.logger.log('Starting RSS feed fetch job');
 
         const sources = [
-            { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
-            { name: 'Hacker News', url: 'https://feeds.feedburner.com/ycombinator' },
-            { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
+            {name: 'TechCrunch', url: 'https://techcrunch.com/feed/'},
+            {name: 'Hacker News', url: 'https://feeds.feedburner.com/ycombinator'},
+            {name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml'},
         ];
 
         for (const source of sources) {

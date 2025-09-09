@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Like, In } from 'typeorm';
-import { RssUniqueFeeds } from '../entities';
-import { BaseRepository } from './base.repository';
-import { IPaginationResult, IPaginationOptions } from '../interfaces';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository, Between, Like, In} from 'typeorm';
+import {RssUniqueFeeds} from '../entities';
+import {BaseRepository} from './base.repository';
+import {IPaginationResult, IPaginationOptions} from '../interfaces';
 
 @Injectable()
 export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
@@ -22,8 +22,8 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
         options: IPaginationOptions = {}
     ): Promise<IPaginationResult<RssUniqueFeeds>> {
         return this.findWithPagination(
-            { source },
-            { ...options, sortBy: 'pub_date' }
+            {source},
+            {...options, sortBy: 'pub_date'}
         );
     }
 
@@ -32,8 +32,8 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
      */
     async findBySources(sources: string[]): Promise<RssUniqueFeeds[]> {
         return this.repository.find({
-            where: { source: In(sources) },
-            order: { pub_date: 'DESC' },
+            where: {source: In(sources)},
+            order: {pub_date: 'DESC'},
         });
     }
 
@@ -42,8 +42,8 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
      */
     async findByCategory(category: string): Promise<RssUniqueFeeds[]> {
         return this.repository.find({
-            where: { category },
-            order: { pub_date: 'DESC' },
+            where: {category},
+            order: {pub_date: 'DESC'},
         });
     }
 
@@ -51,14 +51,14 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
      * Check if feed exists by link
      */
     async existsByLink(link: string): Promise<boolean> {
-        return this.exists({ link });
+        return this.exists({link});
     }
 
     /**
      * Find feed by link
      */
     async findByLink(link: string): Promise<RssUniqueFeeds | null> {
-        return this.repository.findOne({ where: { link } });
+        return this.repository.findOne({where: {link}});
     }
 
     /**
@@ -66,7 +66,7 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
      */
     async findRecent(limit: number = 10): Promise<RssUniqueFeeds[]> {
         return this.repository.find({
-            order: { pub_date: 'DESC' },
+            order: {pub_date: 'DESC'},
             take: limit,
         });
     }
@@ -79,8 +79,8 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
         options: IPaginationOptions = {}
     ): Promise<IPaginationResult<RssUniqueFeeds>> {
         return this.findWithPagination(
-            { title: Like(`%${searchTerm}%`) },
-            { ...options, sortBy: 'pub_date' }
+            {title: Like(`%${searchTerm}%`)},
+            {...options, sortBy: 'pub_date'}
         );
     }
 
@@ -106,8 +106,8 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
         options: IPaginationOptions = {}
     ): Promise<IPaginationResult<RssUniqueFeeds>> {
         return this.findWithPagination(
-            { pub_date: Between(startDate, endDate) },
-            { ...options, sortBy: 'pub_date' }
+            {pub_date: Between(startDate, endDate)},
+            {...options, sortBy: 'pub_date'}
         );
     }
 
@@ -124,7 +124,7 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
             where: {
                 pub_date: Between(today, tomorrow),
             },
-            order: { pub_date: 'DESC' },
+            order: {pub_date: 'DESC'},
         });
     }
 
@@ -209,9 +209,9 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
             this.count(),
             this.getUniqueSources(),
             this.getUniqueCategories(),
-            this.count({ pub_date: Between(today, now) }),
-            this.count({ pub_date: Between(weekAgo, now) }),
-            this.count({ pub_date: Between(monthAgo, now) }),
+            this.count({pub_date: Between(today, now)}),
+            this.count({pub_date: Between(weekAgo, now)}),
+            this.count({pub_date: Between(monthAgo, now)}),
         ]);
 
         return {
@@ -250,7 +250,7 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
             .createQueryBuilder()
             .delete()
             .from(RssUniqueFeeds)
-            .where('pub_date < :cutoffDate', { cutoffDate })
+            .where('pub_date < :cutoffDate', {cutoffDate})
             .execute();
 
         return result.affected || 0;
@@ -283,7 +283,7 @@ export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {
      * Update feed description by ID
      */
     async updateDescription(id: number, description: string): Promise<RssUniqueFeeds | null> {
-        await this.repository.update(id, { description });
+        await this.repository.update(id, {description});
         return this.findById(id);
     }
 }

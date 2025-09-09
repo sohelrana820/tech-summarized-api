@@ -4,4 +4,4 @@ export * from './repositories';
 
 export * from './interfaces';
 
-export { DatabaseModule } from './database.module';
+export {DatabaseModule} from './database.module';

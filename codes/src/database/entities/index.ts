@@ -1,1 +1,1 @@
-export { RssUniqueFeeds } from './rss-unique-feeds.entity';
+export {RssUniqueFeeds} from './rss-unique-feeds.entity';

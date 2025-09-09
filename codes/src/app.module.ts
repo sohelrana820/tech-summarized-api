@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseModule } from './database';
-import { RssModule } from './modules/rss/rss.module';
+import {Module} from '@nestjs/common';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {DatabaseModule} from './database';
+import {RssModule} from './modules/rss/rss.module';
 
 @Module({
     imports: [
@@ -19,4 +19,5 @@ import { RssModule } from './modules/rss/rss.module';
         RssModule,
     ],
 })
-export class AppModule {}
+export class AppModule {
+}
