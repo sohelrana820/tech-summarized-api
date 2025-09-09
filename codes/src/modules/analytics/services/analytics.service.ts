@@ -1,6 +1,11 @@
-// src/modules/analytics/services/analytics.service.ts
 import { Injectable } from '@nestjs/common';
+import { Between } from 'typeorm';
 import { RssUniqueFeedsRepository } from '../../../database';
+
+interface WeeklyTrend {
+    date: string;
+    count: number;
+}
 
 @Injectable()
 export class AnalyticsService {
@@ -33,8 +38,8 @@ export class AnalyticsService {
         };
     }
 
-    private async getWeeklyTrends() {
-        const trends = [];
+    private async getWeeklyTrends(): Promise<WeeklyTrend[]> {
+        const trends: WeeklyTrend[] = [];
         const today = new Date();
 
         for (let i = 6; i >= 0; i--) {

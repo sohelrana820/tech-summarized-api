@@ -1,7 +1,6 @@
-// src/modules/rss/services/rss.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
-import { IPaginationResult } from '../../../database/interfaces';
+import type { IPaginationResult } from '../../../database/interfaces';
 
 @Injectable()
 export class RssService {
@@ -31,7 +30,14 @@ export class RssService {
         return this.rssRepository.searchByTitle(searchTerm, { page, limit: 20 });
     }
 
-    async createFeed(feedData: Partial<RssUniqueFeeds>): Promise<RssUniqueFeeds> {
+    async createFeed(feedData: {
+        title: string;
+        link: string;
+        pub_date: Date;
+        source: string;
+        description?: string | null;
+        category?: string | null;
+    }): Promise<RssUniqueFeeds> {
         // Check if feed already exists
         const exists = await this.rssRepository.existsByLink(feedData.link);
         if (exists) {
@@ -53,7 +59,14 @@ export class RssService {
         return this.rssRepository.getUniqueSources();
     }
 
-    async bulkImportFeeds(feeds: Partial<RssUniqueFeeds>[]): Promise<void> {
+    async bulkImportFeeds(feeds: {
+        title: string;
+        link: string;
+        pub_date: Date;
+        source: string;
+        description?: string | null;
+        category?: string | null;
+    }[]): Promise<void> {
         await this.rssRepository.upsertMany(feeds);
     }
 }

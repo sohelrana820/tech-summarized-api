@@ -1,6 +1,13 @@
-// src/modules/summarizer/services/summarizer.service.ts
 import { Injectable } from '@nestjs/common';
 import { RssUniqueFeedsRepository } from '../../../database';
+
+interface FeedSummary {
+    feedId: number;
+    originalTitle: string;
+    summary: string;
+    source: string;
+    publishedAt: Date;
+}
 
 @Injectable()
 export class SummarizerService {
@@ -8,7 +15,7 @@ export class SummarizerService {
         private readonly rssRepository: RssUniqueFeedsRepository,
     ) {}
 
-    async summarizeFeed(feedId: number): Promise<any> {
+    async summarizeFeed(feedId: number): Promise<FeedSummary> {
         // Get the RSS feed
         const feed = await this.rssRepository.findById(feedId);
         if (!feed) {
@@ -28,9 +35,9 @@ export class SummarizerService {
         };
     }
 
-    async summarizeRecentFeeds(limit: number = 10): Promise<any[]> {
+    async summarizeRecentFeeds(limit: number = 10): Promise<FeedSummary[]> {
         const recentFeeds = await this.rssRepository.findRecent(limit);
-        const summaries = [];
+        const summaries: FeedSummary[] = [];
 
         for (const feed of recentFeeds) {
             const summary = await this.summarizeFeed(feed.id);
