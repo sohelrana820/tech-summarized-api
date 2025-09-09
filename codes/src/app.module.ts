@@ -2,20 +2,24 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import {DatabaseModule} from "./database/database.module";
 import {CommonModule} from "./commons/common.module";
-import {appConfig} from "./configs/app.config";
-import {connectorConfig} from "./configs/connector.config";
-import {dbConfig} from "./configs/db.config";
-import {logConfig} from "./configs/log.config";
+import {TypeOrmModule} from "@nestjs/typeorm";
 
 @Module({
   imports: [
       ConfigModule.forRoot({
           isGlobal: true,
-          load: [appConfig, connectorConfig, dbConfig, logConfig], // 👈 load all configs
       }),
-      DatabaseModule,
+      TypeOrmModule.forRoot({
+          type: 'mysql',
+          host: 'local_mysql_3308',
+          port: 3306,
+          username: 'root',
+          password: 'secret',
+          database: 'tech_summarized',
+          entities: [],
+          synchronize: true,
+      }),
       CommonModule
   ],
   controllers: [AppController],
