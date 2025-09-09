@@ -1,23 +1,24 @@
-import {Module} from '@nestjs/common';
-import {TypeOrmModule} from '@nestjs/typeorm';
-import {DatabaseModule} from './database';
-import {RssModule} from './modules/rss/rss.module';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database';
+import { RssModule } from './modules/rss/rss.module';
+import databaseConfig from './configs/database.config';
 
 @Module({
     imports: [
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: 'local_mysql_3308',
-            port: 3306,
-            username: 'root',
-            password: 'secret',
-            database: 'tech_summarized',
-            entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: process.env.NODE_ENV === 'development',
+        // Global configuration
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [databaseConfig],
+            envFilePath: ['.env.local', '.env'],
+            cache: true, // Cache configuration for performance
         }),
+
+        // Database module handles all DB connections
         DatabaseModule,
+
+        // Feature modules
         RssModule,
     ],
 })
-export class AppModule {
-}
+export class AppModule {}
