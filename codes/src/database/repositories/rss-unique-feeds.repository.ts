@@ -1,10 +1,9 @@
-// src/database/repositories/rss-unique-feeds.repository.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, Like, In } from 'typeorm';
-import { RssUniqueFeeds } from '../entities/rss-unique-feeds.entity';
+import { RssUniqueFeeds } from '../entities';
 import { BaseRepository } from './base.repository';
-import { IPaginationResult, IPaginationOptions } from '../interfaces/pagination.interface';
+import { IPaginationResult, IPaginationOptions } from '../interfaces';
 
 @Injectable()
 export class RssUniqueFeedsRepository extends BaseRepository<RssUniqueFeeds> {

@@ -1,16 +1,17 @@
-import { Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder, ObjectLiteral } from 'typeorm';
-import type { IBaseRepository } from '../interfaces/repository.interface';
-import type { IPaginationResult, IPaginationOptions } from '../interfaces/pagination.interface';
+import {Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder, ObjectLiteral} from 'typeorm';
+import type {IBaseRepository} from '../interfaces';
+import type {IPaginationResult, IPaginationOptions} from '../interfaces';
 
 export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRepository<T> {
-    constructor(protected readonly repository: Repository<T>) {}
+    constructor(protected readonly repository: Repository<T>) {
+    }
 
     async findAll(options?: FindManyOptions<T>): Promise<T[]> {
         return this.repository.find(options);
     }
 
     async findById(id: number): Promise<T | null> {
-        return this.repository.findOne({ where: { id } as any });
+        return this.repository.findOne({where: {id} as any});
     }
 
     async create(data: Partial<T>): Promise<T> {
@@ -34,11 +35,11 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRe
     }
 
     async count(where?: FindOptionsWhere<T>): Promise<number> {
-        return this.repository.count({ where });
+        return this.repository.count({where});
     }
 
     async exists(where: FindOptionsWhere<T>): Promise<boolean> {
-        const count = await this.repository.count({ where });
+        const count = await this.repository.count({where});
         return count > 0;
     }
 
@@ -46,10 +47,10 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRe
         where?: FindOptionsWhere<T>,
         options: IPaginationOptions = {}
     ): Promise<IPaginationResult<T>> {
-        const { page = 1, limit = 10, sortBy, sortOrder = 'DESC' } = options;
+        const {page = 1, limit = 10, sortBy, sortOrder = 'DESC'} = options;
 
         const order: FindOptionsOrder<T> = sortBy
-            ? { [sortBy]: sortOrder } as FindOptionsOrder<T>
+            ? {[sortBy]: sortOrder} as FindOptionsOrder<T>
             : {};
 
         const [data, total] = await this.repository.findAndCount({
@@ -81,7 +82,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRe
     }
 
     async findWithRelations(relations: string[]): Promise<T[]> {
-        return this.repository.find({ relations });
+        return this.repository.find({relations});
     }
 
     async bulkDelete(where: FindOptionsWhere<T>): Promise<void> {

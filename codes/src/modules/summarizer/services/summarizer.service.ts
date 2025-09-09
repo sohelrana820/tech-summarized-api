@@ -1,6 +1,3 @@
-// ==========================================
-// FIXED: src/modules/summarizer/services/summarizer.service.ts
-// ==========================================
 import { Injectable } from '@nestjs/common';
 import { RssUniqueFeedsRepository } from '../../../database';
 
@@ -48,7 +45,6 @@ export class SummarizerService {
     }
 
     private async generateSummary(content: string): Promise<string> {
-        // Implement your AI summarization logic here
         return `Summary of: ${content.substring(0, 100)}...`;
     }
 }

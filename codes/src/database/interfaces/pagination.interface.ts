@@ -1,4 +1,3 @@
-// src/database/interfaces/pagination.interface.ts
 export interface IPaginationResult<T> {
     data: T[];
     total: number;

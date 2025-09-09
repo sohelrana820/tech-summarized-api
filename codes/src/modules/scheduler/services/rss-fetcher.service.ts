@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
 
-// RSS Parser import fix - use require syntax for better compatibility
 const Parser = require('rss-parser');
 
 @Injectable()
@@ -38,7 +37,7 @@ export class RssFetcherService {
     private async fetchFromSource(sourceName: string, url: string) {
         try {
             const feed = await this.parser.parseURL(url);
-            const feedsToInsert: Partial<RssUniqueFeeds>[] = []; // Fixed: use Partial instead of DeepPartial
+            const feedsToInsert: Partial<RssUniqueFeeds>[] = [];
 
             for (const item of feed.items) {
                 if (item.link) {

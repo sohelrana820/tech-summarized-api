@@ -14,7 +14,7 @@ export class RssUniqueFeeds {
 
     @Column({
         type: 'varchar',
-        length: 255, // Reduced length to fix index issue
+        length: 255,
         nullable: false,
     })
     link: string;
@@ -44,7 +44,6 @@ export class RssUniqueFeeds {
     })
     category: string | null;
 
-    // Fixed timestamp column - remove default and make it simple
     @Column({
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
