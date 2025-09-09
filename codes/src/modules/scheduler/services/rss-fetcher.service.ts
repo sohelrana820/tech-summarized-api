@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
-import Parser from 'rss-parser'; // Fixed import
+
+// RSS Parser import fix - use require syntax for better compatibility
+const Parser = require('rss-parser');
 
 @Injectable()
 export class RssFetcherService {
@@ -36,10 +38,9 @@ export class RssFetcherService {
     private async fetchFromSource(sourceName: string, url: string) {
         try {
             const feed = await this.parser.parseURL(url);
-            const feedsToInsert: DeepPartial<RssUniqueFeeds>[] = [];
+            const feedsToInsert: Partial<RssUniqueFeeds>[] = []; // Fixed: use Partial instead of DeepPartial
 
             for (const item of feed.items) {
-                // Check if feed already exists
                 if (item.link) {
                     const exists = await this.rssRepository.existsByLink(item.link);
                     if (!exists) {
@@ -69,10 +70,7 @@ export class RssFetcherService {
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async cleanupOldFeeds() {
         this.logger.log('Starting cleanup of old feeds');
-
-        // Delete feeds older than 30 days
         const deletedCount = await this.rssRepository.deleteOldFeeds(30);
-
         this.logger.log(`Cleaned up ${deletedCount} old feeds`);
     }
 }

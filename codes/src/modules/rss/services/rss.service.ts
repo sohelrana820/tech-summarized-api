@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { RssUniqueFeedsRepository, RssUniqueFeeds } from '../../../database';
-import type { IPaginationResult } from '../../../database/interfaces';
 
 @Injectable()
 export class RssService {
@@ -22,14 +21,6 @@ export class RssService {
         return feed;
     }
 
-    async getFeedsBySource(source: string, page: number = 1, limit: number = 10): Promise<IPaginationResult<RssUniqueFeeds>> {
-        return this.rssRepository.findBySource(source, { page, limit });
-    }
-
-    async searchFeeds(searchTerm: string, page: number = 1): Promise<IPaginationResult<RssUniqueFeeds>> {
-        return this.rssRepository.searchByTitle(searchTerm, { page, limit: 20 });
-    }
-
     async createFeed(feedData: {
         title: string;
         link: string;
@@ -38,35 +29,14 @@ export class RssService {
         description?: string | null;
         category?: string | null;
     }): Promise<RssUniqueFeeds> {
-        // Check if feed already exists
         const exists = await this.rssRepository.existsByLink(feedData.link);
         if (exists) {
             throw new Error('RSS feed with this link already exists');
         }
-
         return this.rssRepository.create(feedData);
     }
 
     async getRecentFeeds(limit: number = 10): Promise<RssUniqueFeeds[]> {
         return this.rssRepository.findRecent(limit);
-    }
-
-    async getFeedStatistics() {
-        return this.rssRepository.getStatistics();
-    }
-
-    async getUniqueSources(): Promise<string[]> {
-        return this.rssRepository.getUniqueSources();
-    }
-
-    async bulkImportFeeds(feeds: {
-        title: string;
-        link: string;
-        pub_date: Date;
-        source: string;
-        description?: string | null;
-        category?: string | null;
-    }[]): Promise<void> {
-        await this.rssRepository.upsertMany(feeds);
     }
 }

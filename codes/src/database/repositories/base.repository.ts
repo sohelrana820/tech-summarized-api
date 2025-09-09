@@ -1,73 +1,47 @@
-import { Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder, ObjectLiteral, DeepPartial } from 'typeorm';
+import { Repository, FindManyOptions, FindOptionsWhere, FindOptionsOrder, ObjectLiteral } from 'typeorm';
 import type { IBaseRepository } from '../interfaces/repository.interface';
 import type { IPaginationResult, IPaginationOptions } from '../interfaces/pagination.interface';
 
 export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRepository<T> {
     constructor(protected readonly repository: Repository<T>) {}
 
-    /**
-     * Find all records with optional conditions
-     */
     async findAll(options?: FindManyOptions<T>): Promise<T[]> {
         return this.repository.find(options);
     }
 
-    /**
-     * Find a record by ID
-     */
     async findById(id: number): Promise<T | null> {
         return this.repository.findOne({ where: { id } as any });
     }
 
-    /**
-     * Create a new record
-     */
-    async create(data: DeepPartial<T>): Promise<T> {
-        const entity = this.repository.create(data);
-        return this.repository.save(entity);
+    async create(data: Partial<T>): Promise<T> {
+        const entity = this.repository.create(data as any);
+        const savedEntity = await this.repository.save(entity);
+        return Array.isArray(savedEntity) ? savedEntity[0] : savedEntity;
     }
 
-    /**
-     * Create multiple records
-     */
-    async createMany(data: DeepPartial<T>[]): Promise<T[]> {
-        const entities = this.repository.create(data);
+    async createMany(data: Partial<T>[]): Promise<T[]> {
+        const entities = this.repository.create(data as any);
         return this.repository.save(entities);
     }
 
-    /**
-     * Update a record by ID
-     */
-    async update(id: number, data: DeepPartial<T>): Promise<T | null> {
+    async update(id: number, data: Partial<T>): Promise<T | null> {
         await this.repository.update(id, data as any);
         return this.findById(id);
     }
 
-    /**
-     * Delete a record by ID
-     */
     async delete(id: number): Promise<void> {
         await this.repository.delete(id);
     }
 
-    /**
-     * Count records with optional conditions
-     */
     async count(where?: FindOptionsWhere<T>): Promise<number> {
         return this.repository.count({ where });
     }
 
-    /**
-     * Check if record exists with given conditions
-     */
     async exists(where: FindOptionsWhere<T>): Promise<boolean> {
         const count = await this.repository.count({ where });
         return count > 0;
     }
 
-    /**
-     * Generic pagination method
-     */
     async findWithPagination(
         where?: FindOptionsWhere<T>,
         options: IPaginationOptions = {}
@@ -98,37 +72,22 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IBaseRe
         };
     }
 
-    /**
-     * Soft delete (if your entity has deleted_at field)
-     */
     async softDelete(id: number): Promise<void> {
         await this.repository.softDelete(id);
     }
 
-    /**
-     * Restore soft deleted record
-     */
     async restore(id: number): Promise<void> {
         await this.repository.restore(id);
     }
 
-    /**
-     * Find records with relations
-     */
     async findWithRelations(relations: string[]): Promise<T[]> {
         return this.repository.find({ relations });
     }
 
-    /**
-     * Bulk delete by conditions
-     */
     async bulkDelete(where: FindOptionsWhere<T>): Promise<void> {
         await this.repository.delete(where);
     }
 
-    /**
-     * Raw query execution
-     */
     async executeRawQuery(query: string, parameters?: any[]): Promise<any> {
         return this.repository.query(query, parameters);
     }

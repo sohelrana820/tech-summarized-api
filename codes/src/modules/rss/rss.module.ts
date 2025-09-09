@@ -1,4 +1,3 @@
-// src/modules/rss/rss.module.ts
 import { Module } from '@nestjs/common';
 import { RssService } from './services/rss.service';
 import { RssController } from './controllers/rss.controller';

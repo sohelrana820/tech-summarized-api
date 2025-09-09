@@ -1,8 +1,7 @@
-// src/database/interfaces/repository.interface.ts
-import { FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 import { IPaginationResult, IPaginationOptions } from './pagination.interface';
 
-export interface IBaseRepository<T> {
+export interface IBaseRepository<T extends ObjectLiteral> {
     findAll(options?: FindManyOptions<T>): Promise<T[]>;
     findById(id: number): Promise<T | null>;
     create(data: Partial<T>): Promise<T>;
