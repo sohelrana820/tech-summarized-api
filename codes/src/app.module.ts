@@ -8,7 +8,7 @@ import { RssModule } from './modules/rss/rss.module';
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: 'local_mysql_3308',
-            port: '3306',
+            port: 3306,
             username: 'root',
             password: 'secret',
             database: 'tech_summarized',
